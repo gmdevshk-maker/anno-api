@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.anno.mapper.FormalMapper">
+
+    <!-- 양식정의 조회 -->
+    <select id="selectFormal" parameterType="Formal" resultType="Formal">
+        SELECT
+            ID,
+            STANDARD,
+            STYLE,
+            STYLE_TEXT,
+            VERSION,
+            MERGE_WAY,
+            SUM_WAY,
+            QUARTER,
+            END_TERM,
+            START_DT,
+            END_DT
+        FROM FORMAL
+        WHERE (VERSION LIKE '%' || #{version} || '%'
+           OR STYLE LIKE '%' || #{version} || '%'
+           OR STYLE_TEXT LIKE '%' || #{version} || '%')
+        <if test="id != null and id != ''">
+            AND ID = #{id}
+        </if>
+        ORDER BY UPDATE_DT DESC
+    </select>
+
+    <!-- 양식정의 조회(중복검사) -->
+    <select id="selectFormalCheck" parameterType="Formal" resultType="Formal">
+        SELECT
+            STYLE,
+            VERSION,
+            START_DT,
+            END_DT,
+            TO_CHAR(UPDATE_DT, 'YYYY-MM-DD HH24:MI') AS UPDATE_DT
+        FROM FORMAL
+        WHERE ((STYLE = #{style} AND VERSION = #{version})
+           OR (STYLE = #{style} AND (TO_DATE(START_DT,'YYYY-MM') <![CDATA[<=]]> TO_DATE(#{endDt},'YYYY-MM') AND TO_DATE(END_DT,'YYYY-MM') <![CDATA[>=]]> TO_DATE(#{startDt},'YYYY-MM'))))
+        <if test="id != null and id != ''">
+            AND ID != #{id}
+        </if>
+          AND ROWNUM = 1
+    </select>
+
+    <!-- 양식정의 등록 -->
+    <!--<insert id="insertFormal" parameterType="Formal">
+        MERGE INTO FORMAL T
+            USING DUAL ON (T.ID = #{id})
+            WHEN MATCHED THEN
+                UPDATE SET
+                    T.STANDARD = #{standard},
+                    T.STYLE_TEXT = #{styleText},
+                    T.MERGE_WAY = #{mergeWay},
+                    T.SUM_WAY = #{sumWay},
+                    T.QUARTER = #{quarter},
+                    T.END_TERM = #{endTerm},
+                    T.START_DT = #{startDt},
+                    T.END_DT = #{endDt},
+                    T.UPDATE_DT = SYSDATE
+            WHEN NOT MATCHED THEN
+                INSERT (ID, STANDARD, STYLE, STYLE_TEXT, VERSION, MERGE_WAY, SUM_WAY, QUARTER, END_TERM, START_DT, END_DT)
+                VALUES (FORMAL_SEQ.NEXTVAL, #{standard}, #{style}, #{styleText}, #{version}, #{mergeWay}, #{sumWay}, #{quarter}, #{endTerm}, #{startDt}, #{endDt})
+    </insert>-->
+
+    <!-- 양식정의 등록 -->
+    <insert id="insertFormal" parameterType="Formal" keyProperty="id">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            SELECT FORMAL_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO FORMAL (
+            ID,
+            STANDARD,
+            STYLE,
+            STYLE_TEXT,
+            VERSION,
+            MERGE_WAY,
+            SUM_WAY,
+            QUARTER,
+            END_TERM,
+            START_DT,
+            END_DT
+        ) VALUES (
+            #{id},
+            #{standard},
+            #{style},
+            #{styleText},
+            #{version},
+            #{mergeWay},
+            #{sumWay},
+            #{quarter},
+            #{endTerm},
+            #{startDt},
+            #{endDt}
+        )
+    </insert>
+
+    <!--  양식정의 수정 -->
+    <update id="updateFormal" parameterType="Formal">
+        UPDATE FORMAL
+        SET
+            STANDARD = #{standard},
+            STYLE_TEXT = #{styleText},
+            MERGE_WAY = #{mergeWay},
+            SUM_WAY = #{sumWay},
+            QUARTER = #{quarter},
+            END_TERM = #{endTerm},
+            START_DT = #{startDt},
+            END_DT = #{endDt},
+            UPDATE_DT = SYSDATE
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 양식정의 삭제 -->
+    <delete id="deleteFormal" parameterType="Formal">
+        DELETE FROM FORMAL
+        WHERE ID = #{id}
+    </delete>
+</mapper>

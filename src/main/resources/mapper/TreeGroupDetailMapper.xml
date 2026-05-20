@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.anno.mapper.TreeGroupDetailMapper">
+
+    <!-- 목차 상세조회 -->
+    <select id="selectTreeGroupDetail" parameterType="TreeGroupDetail" resultType="TreeGroupDetail">
+        SELECT
+            TREE_GROUP_ID,
+            FORMAL_ID,
+            SENTENCE_ID,
+            IDX
+        FROM TREE_GROUP_DETAIL
+        WHERE TREE_GROUP_ID = #{id}
+    </select>
+
+    <!-- 목차 상세등록(양식) -->
+    <insert id="insertTreeGroupDetailFormal" parameterType="list">
+        <foreach collection="list" item="item" index="idx" separator=" " open="INSERT ALL" close="SELECT 1 FROM DUAL">
+            INTO TREE_GROUP_DETAIL (
+                TREE_GROUP_ID,
+                FORMAL_ID,
+                IDX
+            )
+            VALUES (
+                #{item.treeGroupId},
+                #{item.formalId},
+                #{item.idx}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 목차 상세등록(문장) -->
+    <insert id="insertTreeGroupDetailSentence" parameterType="TreeGroupDetail">
+        INSERT INTO TREE_GROUP_DETAIL (
+            TREE_GROUP_ID,
+            SENTENCE_ID,
+            IDX
+        ) VALUES (
+            #{treeGroupId},
+            #{sentenceId},
+            #{idx}
+        )
+    </insert>
+
+    <!-- 목차 상세삭제(전체) -->
+    <delete id="deleteTreeGroupDetail" parameterType="string">
+        DELETE FROM TREE_GROUP_DETAIL
+        WHERE TREE_GROUP_ID = #{id}
+    </delete>
+
+    <!-- 목차 상세삭제(개별) -->
+    <delete id="deleteTreeGroupDetailRow" parameterType="TreeGroupDetail">
+        DELETE FROM TREE_GROUP_DETAIL
+        WHERE TREE_GROUP_ID = #{treeGroupId}
+          AND IDX = #{idx}
+    </delete>
+
+    <!-- 목차 상세삭제(테이블) -->
+    <delete id="deleteTreeGroupDetailFormal" parameterType="string">
+        DELETE FROM TREE_GROUP_DETAIL
+        WHERE TREE_GROUP_ID = #{id}
+          AND FORMAL_ID IS NOT NULL
+    </delete>
+
+    <!-- 목차 상세삭제(양식ID) -->
+    <delete id="deleteTreeGroupDetailFormalId" parameterType="string">
+        DELETE FROM TREE_GROUP_DETAIL
+        WHERE FORMAL_ID = #{formalId}
+    </delete>
+
+    <!-- 목차 상세삭제(문장) -->
+    <delete id="deleteTreeGroupDetailSentence" parameterType="string">
+        DELETE FROM TREE_GROUP_DETAIL
+        WHERE TREE_GROUP_ID = #{id}
+          AND SENTENCE_ID IS NOT NULL
+    </delete>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.anno.mapper.TreeDetailMapper">
+
+    <!-- Tree 상세조회(관리자) -->
+    <select id="selectTreeDetail" parameterType="TreeDetail" resultType="TreeDetail">
+        SELECT
+            A.IDX,
+            A.FORMAL_ID,
+            A.SENTENCE_ID,
+            B.STANDARD,
+            B.STYLE,
+            B.STYLE_TEXT,
+            B.VERSION,
+            B.MERGE_WAY,
+            B.SUM_WAY,
+            B.QUARTER,
+            B.END_TERM,
+            B.START_DT,
+            B.END_DT,
+            C.ID AS TABLE_SET_ID,
+            C.DATA,
+            D.TEXT
+        FROM TREE_GROUP_DETAIL A
+             LEFT JOIN FORMAL B ON B.ID = A.FORMAL_ID
+             LEFT JOIN TABLE_SET C ON C.FORMAL_ID = B.ID
+             LEFT JOIN SENTENCE D ON D.ID = A.SENTENCE_ID
+        WHERE A.TREE_GROUP_ID = #{treeGroupId}
+        ORDER BY IDX ASC
+    </select>
+
+    <!-- Tree 상세조회(사용자) -->
+    <select id="selectTreeDetailUser" parameterType="TreeDetailUser" resultType="TreeDetailUser">
+        SELECT
+            A.IDX,
+            A.FORMAL_ID,
+            A.SENTENCE_ID,
+            B.STANDARD,
+            B.STYLE,
+            B.STYLE_TEXT,
+            B.VERSION,
+            B.MERGE_WAY,
+            B.SUM_WAY,
+            B.QUARTER,
+            B.END_TERM,
+            B.START_DT,
+            B.END_DT,
+            C.ID AS TABLE_SET_ID,
+            NVL(E.DATA,C.DATA) AS DATA,
+            NVL(F.TEXT,D.TEXT) AS TEXT,
+            NVL(E.USER_ID,F.USER_ID) AS USER_ID
+        FROM TREE_GROUP_DETAIL A
+             LEFT JOIN FORMAL B ON B.ID = A.FORMAL_ID
+             LEFT JOIN TABLE_SET C ON C.FORMAL_ID = B.ID
+             LEFT JOIN SENTENCE D ON D.ID = A.SENTENCE_ID
+             LEFT JOIN TABLE_SET_USER E ON E.FORMAL_ID = B.ID AND E.USER_ID = #{userId}
+             LEFT JOIN SENTENCE_USER F ON F.SENTENCE_ID = D.ID AND F.USER_ID = #{userId}
+        WHERE A.TREE_GROUP_ID = #{treeGroupId}
+        ORDER BY IDX ASC
+    </select>
+
+    <!-- Tree 상세조회(사용자 전체) -->
+    <select id="selectTreeDetailUserAll" parameterType="TreeDetailUser" resultType="TreeDetailUser">
+        SELECT
+            A.IDX,
+            A.FORMAL_ID,
+            A.SENTENCE_ID,
+            B.STANDARD,
+            B.STYLE,
+            B.STYLE_TEXT,
+            B.VERSION,
+            B.MERGE_WAY,
+            B.SUM_WAY,
+            B.QUARTER,
+            B.END_TERM,
+            B.START_DT,
+            B.END_DT,
+            C.ID AS TABLE_SET_ID,
+            C.DATA AS DEFAULT_DATA,
+            NVL(E.DATA,C.DATA) AS DATA,
+            NVL(F.TEXT,D.TEXT) AS TEXT,
+            NVL(E.USER_ID,F.USER_ID) AS USER_ID,
+            TO_CHAR(E.UPDATE_DT, 'YYYY-MM-DD HH24:MI') AS UPDATE_DT
+        FROM TREE_GROUP_DETAIL A
+             LEFT JOIN FORMAL B ON B.ID = A.FORMAL_ID
+             LEFT JOIN TABLE_SET C ON C.FORMAL_ID = B.ID
+             LEFT JOIN SENTENCE D ON D.ID = A.SENTENCE_ID
+             LEFT JOIN TABLE_SET_USER E ON E.FORMAL_ID = B.ID
+             LEFT JOIN SENTENCE_USER F ON F.SENTENCE_ID = D.ID
+        WHERE A.TREE_GROUP_ID = #{treeGroupId}
+        ORDER BY IDX ASC, UPDATE_DT DESC
+    </select>
+
+</mapper>

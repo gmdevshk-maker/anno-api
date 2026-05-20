@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.anno.mapper.TableSetUserMapper">
+
+    <!-- 표 등록 -->
+    <insert id="insertTableSetUser" parameterType="TableSetUser" keyProperty="id">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            SELECT TABLE_SET_USER_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO TABLE_SET_USER (
+            ID,
+            FORMAL_ID,
+            USER_ID
+        ) VALUES (
+            #{id},
+            #{formalId},
+            #{userId}
+        )
+    </insert>
+
+    <!-- 표 수정 -->
+    <update id="updateTableSetUser" parameterType="TableSetUser">
+        UPDATE TABLE_SET_USER
+        SET
+            UPDATE_DT = SYSDATE,
+            DATA = #{data}
+        WHERE USER_ID = #{userId}
+          AND FORMAL_ID = #{formalId}
+    </update>
+
+    <!-- 표 삭제 -->
+    <delete id="deleteTableSetUser" parameterType="string">
+        DELETE FROM TABLE_SET_USER
+        WHERE FORMAL_ID = #{formalId}
+    </delete>
+</mapper>

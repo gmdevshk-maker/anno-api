@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.anno.mapper.TableSetMapper">
+
+    <!-- 표 조회 -->
+    <select id="selectTableSet" parameterType="TableSet" resultType="TableSet">
+        SELECT
+            ID,
+            FORMAL_ID,
+            DATA
+        FROM TABLE_SET
+        WHERE FORMAL_ID = #{formalId}
+    </select>
+
+    <!-- 표 등록 -->
+    <!-- <insert id="insertTableSet" parameterType="TableSet">
+        MERGE INTO TABLE_SET T
+            USING DUAL ON (T.FORMAL_ID = #{formalId})
+            WHEN MATCHED THEN
+                UPDATE SET
+                    T.DATA = #{data},
+                    T.UPDATE_DT = SYSDATE
+            WHEN NOT MATCHED THEN
+                INSERT (ID, FORMAL_ID, DATA)
+                    VALUES (TABLE_SET_SEQ.NEXTVAL, #{formalId}, #{data})
+    </insert> -->
+
+    <!-- 표 등록 -->
+    <insert id="insertTableSet" parameterType="TableSet" keyProperty="id">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            SELECT TABLE_SET_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO TABLE_SET (
+            ID,
+            FORMAL_ID
+        ) VALUES (
+            #{id},
+            #{formalId}
+         )
+    </insert>
+
+    <!-- 표 수정 -->
+    <update id="updateTableSet" parameterType="TableSet">
+        UPDATE TABLE_SET
+        SET
+            UPDATE_DT = SYSDATE,
+            DATA = #{data}
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 표 삭제 -->
+    <delete id="deleteTableSet" parameterType="string">
+        DELETE FROM TABLE_SET
+        WHERE FORMAL_ID = #{formalId}
+    </delete>
+</mapper>

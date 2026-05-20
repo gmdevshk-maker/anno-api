@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.anno.mapper.SentenceUserMapper">
+
+    <!-- 문장 등록 -->
+    <insert id="createSentenceUser" parameterType="list">
+        MERGE INTO SENTENCE_USER T
+            USING (
+            <foreach collection="list" item="item" separator=" UNION ALL ">
+                SELECT
+                    #{item.id} AS id,
+                    #{item.text} AS text,
+                    #{item.sentenceId} AS sentenceId,
+                    #{item.treeGroupId} AS treeGroupId,
+                    #{item.userId} AS userId
+                FROM dual
+            </foreach>
+            ) SRC
+            ON (T.USER_ID = SRC.userId AND T.SENTENCE_ID = SRC.sentenceId)
+            WHEN MATCHED THEN
+                UPDATE SET
+                    T.TEXT = SRC.text,
+                    T.UPDATE_DT = SYSDATE
+            WHEN NOT MATCHED THEN
+                INSERT (ID, TEXT, TREE_GROUP_ID, SENTENCE_ID, USER_ID)
+                VALUES (SENTENCE_USER_SEQ.NEXTVAL, SRC.text, SRC.treeGroupId, SRC.sentenceId, SRC.userId)
+    </insert>
+
+    <!-- 문장 삭제 -->
+    <delete id="deleteSentenceUser" parameterType="string">
+        DELETE FROM SENTENCE_USER
+        WHERE SENTENCE_ID = #{sentenceId}
+    </delete>
+
+    <!-- 문장 삭제(Tree 전체) -->
+    <delete id="deleteSentenceUserTree" parameterType="string">
+        DELETE FROM SENTENCE_USER
+        WHERE TREE_GROUP_ID = #{treeGroupId}
+    </delete>
+</mapper>

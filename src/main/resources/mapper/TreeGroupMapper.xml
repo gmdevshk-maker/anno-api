@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.anno.mapper.TreeGroupMapper">
+
+    <!-- Tree 조회 -->
+    <select id="selectTreeGroup" parameterType="TreeGroup" resultType="TreeGroup">
+        SELECT
+            ID,
+            PARENT,
+            TEXT,
+            IDX,
+            ACCOUNT_DATE,
+            FOLDER
+        FROM TREE_GROUP
+        WHERE ACCOUNT_DATE = #{accountDate}
+        ORDER BY IDX
+    </select>
+
+    <!-- Tree 등록 -->
+    <insert id="insertTreeGroup" parameterType="list">
+        MERGE INTO TREE_GROUP T
+        USING (
+        <foreach collection="list" item="item" separator=" UNION ALL ">
+            SELECT
+                #{item.id} AS id,
+                #{item.parent} AS parent,
+                #{item.text} AS text,
+                #{item.idx} AS idx,
+                #{item.accountDate} AS accountDate,
+                #{item.folder,jdbcType=VARCHAR} AS folder
+            FROM dual
+        </foreach>
+        ) SRC
+        ON (T.id = SRC.id)
+        WHEN MATCHED THEN
+            UPDATE SET
+                T.PARENT = SRC.parent,
+                T.TEXT = SRC.text,
+                T.IDX = SRC.idx,
+                T.FOLDER = SRC.folder,
+                T.UPDATE_DT = SYSDATE
+        WHEN NOT MATCHED THEN
+        INSERT (ID, PARENT, TEXT, IDX, ACCOUNT_DATE, FOLDER)
+        VALUES (SRC.id, SRC.parent, SRC.text, SRC.idx, SRC.accountDate, SRC.folder)
+    </insert>
+
+    <!-- Tree 삭제 -->
+    <delete id="deleteTreeGroup" parameterType="list">
+        DELETE FROM TREE_GROUP
+        WHERE ID IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.anno.mapper.SentenceMapper">
+
+    <!-- 문장 조회 -->
+    <select id="selectSentence" parameterType="Sentence" resultType="Sentence">
+        SELECT
+            ID,
+            TEXT,
+            TREE_GROUP_ID,
+            IDX
+        FROM SENTENCE
+        WHERE ID = #{id}
+    </select>
+
+    <!-- 문장 등록 -->
+    <insert id="insertSentence" parameterType="Sentence" keyProperty="id">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            SELECT SENTENCE_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO SENTENCE (
+            ID,
+            TEXT,
+            TREE_GROUP_ID,
+            IDX
+        ) VALUES (
+            #{id},
+            #{text},
+            #{treeGroupId},
+            #{idx}
+        )
+    </insert>
+
+    <!--  문장 수정 -->
+    <update id="updateSentence" parameterType="Sentence">
+        UPDATE SENTENCE
+        SET
+            TEXT = #{text},
+            IDX = #{idx},
+            UPDATE_DT = SYSDATE
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 문장 등록 -->
+    <!--<insert id="insertSentence" parameterType="list">
+        MERGE INTO SENTENCE T
+            USING (
+            <foreach collection="list" item="item" separator=" UNION ALL ">
+                SELECT
+                    #{item.id} AS id,
+                    #{item.text} AS text,
+                    #{item.treeGroupId} AS treeGroupId,
+                    #{item.idx} AS idx
+                FROM dual
+            </foreach>
+            ) SRC
+            ON (T.id = SRC.id)
+            WHEN MATCHED THEN
+                UPDATE SET
+                    T.TEXT = SRC.text,
+                    T.TREE_GROUP_ID = SRC.treeGroupId,
+                    T.IDX = SRC.idx,
+                    T.UPDATE_DT = SYSDATE
+            WHEN NOT MATCHED THEN
+                INSERT (ID, TEXT, TREE_GROUP_ID, IDX)
+                VALUES (SENTENCE_SEQ.NEXTVAL, SRC.text, SRC.treeGroupId, SRC.idx)
+    </insert>-->
+
+    <!-- 문장 삭제 -->
+    <delete id="deleteSentence" parameterType="Sentence">
+        DELETE FROM SENTENCE
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 문장 삭제(Tree 전체) -->
+    <delete id="deleteSentenceTree" parameterType="string">
+        DELETE FROM SENTENCE
+        WHERE TREE_GROUP_ID = #{id}
+    </delete>
+</mapper>
